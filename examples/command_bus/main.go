@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/theskyinflames/cqrs-eda/pkg/bus"
 	"github.com/theskyinflames/cqrs-eda/pkg/cqrs"
+	"github.com/theskyinflames/cqrs-eda/pkg/helpers"
 
 	"github.com/google/uuid"
 )
@@ -40,7 +40,7 @@ func (ch AddUserCommandHandler) Handle(ctx context.Context, cmd cqrs.Command) ([
 
 func main() {
 	bus := bus.New()
-	bus.Register(addUserCommandName, busHandler(AddUserCommandHandler{}))
+	bus.Register(addUserCommandName, helpers.BusChHandler(AddUserCommandHandler{}))
 
 	cmd := AddUserCommand{
 		ID:       uuid.New(),
@@ -53,14 +53,4 @@ func main() {
 
 	// Give time to output traces
 	time.Sleep(time.Second)
-}
-
-func busHandler(ch cqrs.CommandHandler) bus.Handler {
-	return func(ctx context.Context, d bus.Dispatchable) (any, error) {
-		cmd, ok := d.(cqrs.Command)
-		if !ok {
-			return nil, errors.New("unexpected dispatchable")
-		}
-		return ch.Handle(ctx, cmd)
-	}
 }
