@@ -6,7 +6,7 @@ import (
 )
 
 type Response struct {
-	Response any
+	Response interface{}
 	Err      error
 }
 

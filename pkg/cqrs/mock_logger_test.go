@@ -18,7 +18,7 @@ var _ cqrs.Logger = &LoggerMock{}
 //
 //		// make and configure a mocked cqrs.Logger
 //		mockedLogger := &LoggerMock{
-//			PrintfFunc: func(format string, v ...any)  {
+//			PrintfFunc: func(format string, v ...interface{})  {
 //				panic("mock out the Printf method")
 //			},
 //		}
@@ -29,7 +29,7 @@ var _ cqrs.Logger = &LoggerMock{}
 //	}
 type LoggerMock struct {
 	// PrintfFunc mocks the Printf method.
-	PrintfFunc func(format string, v ...any)
+	PrintfFunc func(format string, v ...interface{})
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -38,17 +38,17 @@ type LoggerMock struct {
 			// Format is the format argument value.
 			Format string
 			// V is the v argument value.
-			V []any
+			V []interface{}
 		}
 	}
 	lockPrintf sync.RWMutex
 }
 
 // Printf calls PrintfFunc.
-func (mock *LoggerMock) Printf(format string, v ...any) {
+func (mock *LoggerMock) Printf(format string, v ...interface{}) {
 	callInfo := struct {
 		Format string
-		V      []any
+		V      []interface{}
 	}{
 		Format: format,
 		V:      v,
@@ -68,11 +68,11 @@ func (mock *LoggerMock) Printf(format string, v ...any) {
 //	len(mockedLogger.PrintfCalls())
 func (mock *LoggerMock) PrintfCalls() []struct {
 	Format string
-	V      []any
+	V      []interface{}
 } {
 	var calls []struct {
 		Format string
-		V      []any
+		V      []interface{}
 	}
 	mock.lockPrintf.RLock()
 	calls = mock.calls.Printf

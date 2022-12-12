@@ -20,7 +20,7 @@ func TestBusDispatch(t *testing.T) {
 		handlerName     string
 		handler         bus.Handler
 		dispatchable    bus.Dispatchable
-		expected        any
+		expected        interface{}
 		expectedErrFunc func(t *testing.T, err error)
 	}{
 		{

@@ -106,7 +106,7 @@ func busHandlers(inChs []chan events.Event) []bus.Handler {
 	var busHnds []bus.Handler
 	for i := range inChs {
 		i := i
-		busHnds = append(busHnds, func(_ context.Context, d bus.Dispatchable) (any, error) {
+		busHnds = append(busHnds, func(_ context.Context, d bus.Dispatchable) (interface{}, error) {
 			e, ok := d.(events.Event)
 			if !ok {
 				return nil, errors.New("unexpected dispatchable")

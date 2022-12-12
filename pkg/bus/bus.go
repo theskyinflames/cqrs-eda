@@ -13,7 +13,7 @@ type Dispatchable interface {
 }
 
 // Handler handles a dispatchable from the bus
-type Handler func(ctx context.Context, d Dispatchable) (any, error)
+type Handler func(ctx context.Context, d Dispatchable) (interface{}, error)
 
 // Bus is self-described
 type Bus struct {
@@ -36,7 +36,7 @@ func (b Bus) Register(n string, h Handler) {
 var ErrNotDispatchable = errors.New("not dispatchable")
 
 // Dispatch dispatches a dispatchable item
-func (b Bus) Dispatch(ctx context.Context, d Dispatchable) (any, error) {
+func (b Bus) Dispatch(ctx context.Context, d Dispatchable) (interface{}, error) {
 	h, ok := b.h[d.Name()]
 	if !ok {
 		return nil, ErrNotDispatchable

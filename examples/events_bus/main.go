@@ -29,7 +29,7 @@ func main() {
 			},
 		}
 		eventsListener             = events.NewListener(eventsChan, eventName, eventHandlers...)
-		busHandler     bus.Handler = func(_ context.Context, d bus.Dispatchable) (any, error) {
+		busHandler     bus.Handler = func(_ context.Context, d bus.Dispatchable) (interface{}, error) {
 			e, ok := d.(events.Event)
 			if !ok {
 				return nil, errors.New("unexpected dispatchable")

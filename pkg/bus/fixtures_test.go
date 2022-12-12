@@ -7,14 +7,14 @@ import (
 	"github.com/theskyinflames/cqrs-eda/pkg/bus"
 )
 
-func handlerFixture(result any, err error) bus.Handler {
-	return func(_ context.Context, _ bus.Dispatchable) (any, error) {
+func handlerFixture(result interface{}, err error) bus.Handler {
+	return func(_ context.Context, _ bus.Dispatchable) (interface{}, error) {
 		return result, err
 	}
 }
 
-func waitForCtxCancelledHandlerFixture(result any, err error) bus.Handler {
-	return func(ctx context.Context, _ bus.Dispatchable) (any, error) {
+func waitForCtxCancelledHandlerFixture(result interface{}, err error) bus.Handler {
+	return func(ctx context.Context, _ bus.Dispatchable) (interface{}, error) {
 		for {
 			select {
 			case <-ctx.Done():
@@ -24,8 +24,8 @@ func waitForCtxCancelledHandlerFixture(result any, err error) bus.Handler {
 	}
 }
 
-func randomTimeHandlerFixture(result any, duration time.Duration, err error) bus.Handler {
-	return func(_ context.Context, d bus.Dispatchable) (any, error) {
+func randomTimeHandlerFixture(result interface{}, duration time.Duration, err error) bus.Handler {
+	return func(_ context.Context, d bus.Dispatchable) (interface{}, error) {
 		// Simulate handler execution time
 		time.Sleep(duration)
 		return result, err

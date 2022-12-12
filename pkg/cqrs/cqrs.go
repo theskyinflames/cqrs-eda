@@ -12,7 +12,7 @@ import (
 
 // Logger is an interface
 type Logger interface {
-	Printf(format string, v ...any)
+	Printf(format string, v ...interface{})
 }
 
 // Event is an event
@@ -62,7 +62,7 @@ type Query interface {
 }
 
 // QueryResult is self-described
-type QueryResult any
+type QueryResult interface{}
 
 // QueryHandler handles a query
 type QueryHandler interface {

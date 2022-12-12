@@ -7,11 +7,11 @@ type EventBasic struct {
 	ID          uuid.UUID
 	aggregateID uuid.UUID
 	name        string
-	body        any
+	body        interface{}
 }
 
 // NewEventBasic is a constructor
-func NewEventBasic(aggregateID uuid.UUID, name string, body any) EventBasic {
+func NewEventBasic(aggregateID uuid.UUID, name string, body interface{}) EventBasic {
 	return EventBasic{
 		ID:          uuid.New(),
 		aggregateID: aggregateID,
@@ -31,6 +31,6 @@ func (e EventBasic) AggregateID() uuid.UUID {
 }
 
 // Body is a getter
-func (e EventBasic) Body() any {
+func (e EventBasic) Body() interface{} {
 	return e.body
 }

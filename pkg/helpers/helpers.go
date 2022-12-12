@@ -9,7 +9,7 @@ import (
 )
 
 func BusChHandler(ch cqrs.CommandHandler) bus.Handler {
-	return func(ctx context.Context, d bus.Dispatchable) (any, error) {
+	return func(ctx context.Context, d bus.Dispatchable) (interface{}, error) {
 		cmd, ok := d.(cqrs.Command)
 		if !ok {
 			return nil, errors.New("unexpected dispatchable")
@@ -19,7 +19,7 @@ func BusChHandler(ch cqrs.CommandHandler) bus.Handler {
 }
 
 func BusQhHandler(ch cqrs.QueryHandler) bus.Handler {
-	return func(ctx context.Context, d bus.Dispatchable) (any, error) {
+	return func(ctx context.Context, d bus.Dispatchable) (interface{}, error) {
 		cmd, ok := d.(cqrs.Query)
 		if !ok {
 			return nil, errors.New("unexpected dispatchable")
