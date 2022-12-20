@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate moq -stub -out zmock_cqrs_event_test.go -pkg cqrs_test . Event
+
 // Logger is an interface
 type Logger interface {
 	Printf(format string, v ...interface{})
@@ -41,6 +43,19 @@ func (chf CommandHandlerFunc) Handle(ctx context.Context, cmd Command) ([]Event,
 
 // CommandHandlerMiddleware is self-described
 type CommandHandlerMiddleware func(CommandHandler) CommandHandler
+
+// CommandHandlerMultiMiddleware is self-described
+func CommandHandlerMultiMiddleware(mws ...CommandHandlerMiddleware) CommandHandlerMiddleware {
+	return func(ch CommandHandler) CommandHandler {
+		return CommandHandlerFunc(func(ctx context.Context, cmd Command) ([]Event, error) {
+			mw := mws[0](ch)
+			for _, outerMw := range mws[1:] {
+				mw = outerMw(mw)
+			}
+			return mw.Handle(ctx, cmd)
+		})
+	}
+}
 
 // ChErrMw is a command handler middleware
 func ChErrMw(l Logger) CommandHandlerMiddleware {
@@ -79,6 +94,19 @@ func (chf QueryHandlerFunc) Handle(ctx context.Context, q Query) (QueryResult, e
 
 // QueryHandlerMiddleware is self-described
 type QueryHandlerMiddleware func(QueryHandler) QueryHandler
+
+// QueryHandlerMultiMiddleware is self-described
+func QueryHandlerMultiMiddleware(mws ...QueryHandlerMiddleware) QueryHandlerMiddleware {
+	return func(ch QueryHandler) QueryHandler {
+		return QueryHandlerFunc(func(ctx context.Context, cmd Query) (QueryResult, error) {
+			mw := mws[0](ch)
+			for _, outerMw := range mws[1:] {
+				mw = outerMw(mw)
+			}
+			return mw.Handle(ctx, cmd)
+		})
+	}
+}
 
 // QhErrMw is a query handler middleware
 func QhErrMw(l Logger) QueryHandlerMiddleware {
