@@ -5,19 +5,19 @@ package cqrs_test
 
 import (
 	"github.com/google/uuid"
-	"github.com/theskyinflames/cqrs-eda/pkg/cqrs"
 	"sync"
+	"github.com/theskyinflames/cqrs-eda/pkg/events"
 )
 
-// Ensure, that EventMock does implement cqrs.Event.
+// Ensure, that EventMock does implement events.Event.
 // If this is not the case, regenerate this file with moq.
-var _ cqrs.Event = &EventMock{}
+var _ events.Event = &EventMock{}
 
-// EventMock is a mock implementation of cqrs.Event.
+// EventMock is a mock implementation of events.Event.
 //
 //	func TestSomethingThatUsesEvent(t *testing.T) {
 //
-//		// make and configure a mocked cqrs.Event
+//		// make and configure a mocked events.Event
 //		mockedEvent := &EventMock{
 //			AggregateIDFunc: func() uuid.UUID {
 //				panic("mock out the AggregateID method")
@@ -27,7 +27,7 @@ var _ cqrs.Event = &EventMock{}
 //			},
 //		}
 //
-//		// use mockedEvent in code that requires cqrs.Event
+//		// use mockedEvent in code that requires events.Event
 //		// and then make assertions.
 //
 //	}

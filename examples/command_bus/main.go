@@ -7,6 +7,7 @@ import (
 
 	"github.com/theskyinflames/cqrs-eda/pkg/bus"
 	"github.com/theskyinflames/cqrs-eda/pkg/cqrs"
+	"github.com/theskyinflames/cqrs-eda/pkg/events"
 	"github.com/theskyinflames/cqrs-eda/pkg/helpers"
 
 	"github.com/google/uuid"
@@ -29,7 +30,7 @@ func (ac AddUserCommand) Name() string {
 type AddUserCommandHandler struct{}
 
 // Handle implements cqrs.CommandHandler interface
-func (ch AddUserCommandHandler) Handle(ctx context.Context, cmd cqrs.Command) ([]cqrs.Event, error) {
+func (ch AddUserCommandHandler) Handle(ctx context.Context, cmd cqrs.Command) ([]events.Event, error) {
 	addUserCmd, ok := cmd.(AddUserCommand)
 	if !ok {
 		return nil, fmt.Errorf("expected command %s, but received %s", addUserCommandName, cmd.Name())
