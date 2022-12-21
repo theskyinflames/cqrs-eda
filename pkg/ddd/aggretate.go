@@ -4,17 +4,13 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/theskyinflames/cqrs-eda/pkg/events"
 )
-
-// Event is self-described
-type Event interface {
-	Name() string
-}
 
 // AggregateBasic implements
 type AggregateBasic struct {
 	id     uuid.UUID
-	events []Event
+	events []events.Event
 
 	mux *sync.Mutex
 }
@@ -30,17 +26,17 @@ func (ab AggregateBasic) ID() uuid.UUID {
 }
 
 // RecordEvent is self-described
-func (ab *AggregateBasic) RecordEvent(e Event) {
+func (ab *AggregateBasic) RecordEvent(e events.Event) {
 	ab.mux.Lock()
 	defer ab.mux.Unlock()
 	ab.events = append(ab.events, e)
 }
 
 // Events is self-described
-func (ab *AggregateBasic) Events() []Event {
+func (ab *AggregateBasic) Events() []events.Event {
 	ab.mux.Lock()
 	defer ab.mux.Unlock()
 	e := ab.events
-	ab.events = []Event{}
+	ab.events = []events.Event{}
 	return e
 }

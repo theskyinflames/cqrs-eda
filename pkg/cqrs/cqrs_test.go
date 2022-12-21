@@ -5,7 +5,9 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/theskyinflames/cqrs-eda/pkg/bus"
 	"github.com/theskyinflames/cqrs-eda/pkg/cqrs"
+	"github.com/theskyinflames/cqrs-eda/pkg/events"
 
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +18,7 @@ func TestChErrMw(t *testing.T) {
 			logger    = &LoggerMock{}
 			randomErr = errors.New("")
 			ch        = &CommandHandlerMock{
-				HandleFunc: func(_ context.Context, _ cqrs.Command) ([]cqrs.Event, error) {
+				HandleFunc: func(_ context.Context, _ cqrs.Command) ([]events.Event, error) {
 					return nil, randomErr
 				},
 			}
@@ -60,8 +62,8 @@ func TestCommandHandlerMultiMiddleware(t *testing.T) {
 			ev = &EventMock{}
 
 			ch = &CommandHandlerMock{
-				HandleFunc: func(_ context.Context, _ cqrs.Command) ([]cqrs.Event, error) {
-					return []cqrs.Event{ev}, nil
+				HandleFunc: func(_ context.Context, _ cqrs.Command) ([]events.Event, error) {
+					return []events.Event{ev}, nil
 				},
 			}
 		)
@@ -80,7 +82,7 @@ func TestCommandHandlerMultiMiddleware(t *testing.T) {
 
 func chTestMw(name string, calls *[]string) cqrs.CommandHandlerMiddleware {
 	return func(ch cqrs.CommandHandler) cqrs.CommandHandler {
-		return cqrs.CommandHandlerFunc(func(ctx context.Context, cmd cqrs.Command) ([]cqrs.Event, error) {
+		return cqrs.CommandHandlerFunc(func(ctx context.Context, cmd cqrs.Command) ([]events.Event, error) {
 			*calls = append(*calls, name)
 			return ch.Handle(ctx, cmd)
 		})
@@ -124,4 +126,68 @@ func qhTestMw(name string, calls *[]string) cqrs.QueryHandlerMiddleware {
 			return ch.Handle(ctx, cmd)
 		})
 	}
+}
+
+func TestChEventMw(t *testing.T) {
+	t.Run(`Given a events ch middleware with a events bus,
+	when it catches an error from the ch, 
+	then no events are dispatched to the events bus`, func(t *testing.T) {
+		var (
+			eventName = "entity.changed"
+			ev        = &EventMock{
+				NameFunc: func() string {
+					return eventName
+				},
+			}
+			evBus = &BusMock{
+				DispatchFunc: func(_ context.Context, _ bus.Dispatchable) (interface{}, error) {
+					return nil, nil
+				},
+			}
+			err = errors.New("")
+			ch  = &CommandHandlerMock{
+				HandleFunc: func(_ context.Context, _ cqrs.Command) ([]events.Event, error) {
+					return []events.Event{ev}, err
+				},
+			}
+		)
+
+		evs, gotErr := cqrs.ChEventMw(evBus)(ch).Handle(context.Background(), &CommandMock{})
+		require.ErrorIs(t, err, gotErr)
+		require.Len(t, ch.HandleCalls(), 1)
+		require.Len(t, evBus.DispatchCalls(), 0)
+		require.Len(t, evs, 1)
+		require.Equal(t, ev, evs[0])
+	})
+
+	t.Run(`Given a events ch middleware with a events bus,
+	when it catches events from the ch, 
+	then they are dispatched to the events bus`, func(t *testing.T) {
+		var (
+			eventName = "entity.changed"
+			ev        = &EventMock{
+				NameFunc: func() string {
+					return eventName
+				},
+			}
+			evBus = &BusMock{
+				DispatchFunc: func(_ context.Context, _ bus.Dispatchable) (interface{}, error) {
+					return nil, nil
+				},
+			}
+			ch = &CommandHandlerMock{
+				HandleFunc: func(_ context.Context, _ cqrs.Command) ([]events.Event, error) {
+					return []events.Event{ev}, nil
+				},
+			}
+		)
+
+		evs, err := cqrs.ChEventMw(evBus)(ch).Handle(context.Background(), &CommandMock{})
+		require.NoError(t, err)
+		require.Len(t, ch.HandleCalls(), 1)
+		require.Len(t, evBus.DispatchCalls(), 1)
+		require.Equal(t, ev, evBus.DispatchCalls()[0].Dispatchable)
+		require.Len(t, evs, 1)
+		require.Equal(t, ev, evs[0])
+	})
 }

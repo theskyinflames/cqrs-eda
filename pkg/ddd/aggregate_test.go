@@ -10,11 +10,16 @@ import (
 )
 
 type TestEvent struct {
+	id   uuid.UUID
 	name string
 }
 
 func (e TestEvent) Name() string {
 	return e.name
+}
+
+func (e TestEvent) AggregateID() uuid.UUID {
+	return e.id
 }
 
 func TestRecordEventConcurrent(t *testing.T) {
@@ -26,13 +31,13 @@ func TestRecordEventConcurrent(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 1000; i++ {
-			a.RecordEvent(TestEvent{name: "event1"})
+			a.RecordEvent(TestEvent{id: uuid.New(), name: "event1"})
 		}
 	}()
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 1000; i++ {
-			a.RecordEvent(TestEvent{name: "event2"})
+			a.RecordEvent(TestEvent{id: uuid.New(), name: "event2"})
 		}
 	}()
 	wg.Wait()
