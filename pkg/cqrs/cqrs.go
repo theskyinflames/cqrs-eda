@@ -1,6 +1,6 @@
 package cqrs
 
-//go:generate moq -stub -out mock_cqrs_test.go -pkg cqrs_test . Command Query CommandHandler QueryHandler Event
+//go:generate moq -stub -out mock_cqrs_test.go -pkg cqrs_test . Command Query CommandHandler QueryHandler Bus
 //go:generate moq -stub -out mock_logger_test.go -pkg cqrs_test . Logger
 
 import (
@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
+	"github.com/theskyinflames/cqrs-eda/pkg/bus"
 )
 
 //go:generate moq -stub -out zmock_cqrs_event_test.go -pkg cqrs_test . Event
@@ -65,6 +66,26 @@ func ChErrMw(l Logger) CommandHandlerMiddleware {
 			if err != nil {
 				b, _ := json.Marshal(cmd)
 				l.Printf("ch, name: %s, command: %s, error: %s\n", cmd.Name(), string(b), err.Error())
+			}
+			return evs, err
+		})
+	}
+}
+
+// Bus is an Events bus
+type Bus interface {
+	Dispatch(context.Context, bus.Dispatchable) (interface{}, error)
+}
+
+// ChEventMw is a domain events handler middleware
+func ChEventMw(eventsBus Bus) CommandHandlerMiddleware {
+	return func(ch CommandHandler) CommandHandler {
+		return CommandHandlerFunc(func(ctx context.Context, cmd Command) ([]Event, error) {
+			evs, err := ch.Handle(ctx, cmd)
+			if err == nil {
+				for _, e := range evs {
+					eventsBus.Dispatch(ctx, e)
+				}
 			}
 			return evs, err
 		})

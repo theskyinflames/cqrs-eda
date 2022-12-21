@@ -5,8 +5,9 @@ package cqrs_test
 
 import (
 	"context"
-	"sync"
+	"github.com/theskyinflames/cqrs-eda/pkg/bus"
 	"github.com/theskyinflames/cqrs-eda/pkg/cqrs"
+	"sync"
 )
 
 // Ensure, that CommandMock does implement cqrs.Command.
@@ -143,7 +144,7 @@ var _ cqrs.CommandHandler = &CommandHandlerMock{}
 //
 //		// make and configure a mocked cqrs.CommandHandler
 //		mockedCommandHandler := &CommandHandlerMock{
-//			HandleFunc: func(contextMoqParam context.Context, command cqrs.Command) ([]cqrs.Event, error) {
+//			HandleFunc: func(ctx context.Context, cmd cqrs.Command) ([]cqrs.Event, error) {
 //				panic("mock out the Handle method")
 //			},
 //		}
@@ -154,29 +155,29 @@ var _ cqrs.CommandHandler = &CommandHandlerMock{}
 //	}
 type CommandHandlerMock struct {
 	// HandleFunc mocks the Handle method.
-	HandleFunc func(contextMoqParam context.Context, command cqrs.Command) ([]cqrs.Event, error)
+	HandleFunc func(ctx context.Context, cmd cqrs.Command) ([]cqrs.Event, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Handle holds details about calls to the Handle method.
 		Handle []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-			// Command is the command argument value.
-			Command cqrs.Command
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Cmd is the cmd argument value.
+			Cmd cqrs.Command
 		}
 	}
 	lockHandle sync.RWMutex
 }
 
 // Handle calls HandleFunc.
-func (mock *CommandHandlerMock) Handle(contextMoqParam context.Context, command cqrs.Command) ([]cqrs.Event, error) {
+func (mock *CommandHandlerMock) Handle(ctx context.Context, cmd cqrs.Command) ([]cqrs.Event, error) {
 	callInfo := struct {
-		ContextMoqParam context.Context
-		Command         cqrs.Command
+		Ctx context.Context
+		Cmd cqrs.Command
 	}{
-		ContextMoqParam: contextMoqParam,
-		Command:         command,
+		Ctx: ctx,
+		Cmd: cmd,
 	}
 	mock.lockHandle.Lock()
 	mock.calls.Handle = append(mock.calls.Handle, callInfo)
@@ -188,7 +189,7 @@ func (mock *CommandHandlerMock) Handle(contextMoqParam context.Context, command 
 		)
 		return eventsOut, errOut
 	}
-	return mock.HandleFunc(contextMoqParam, command)
+	return mock.HandleFunc(ctx, cmd)
 }
 
 // HandleCalls gets all the calls that were made to Handle.
@@ -196,12 +197,12 @@ func (mock *CommandHandlerMock) Handle(contextMoqParam context.Context, command 
 //
 //	len(mockedCommandHandler.HandleCalls())
 func (mock *CommandHandlerMock) HandleCalls() []struct {
-	ContextMoqParam context.Context
-	Command         cqrs.Command
+	Ctx context.Context
+	Cmd cqrs.Command
 } {
 	var calls []struct {
-		ContextMoqParam context.Context
-		Command         cqrs.Command
+		Ctx context.Context
+		Cmd cqrs.Command
 	}
 	mock.lockHandle.RLock()
 	calls = mock.calls.Handle
@@ -219,7 +220,7 @@ var _ cqrs.QueryHandler = &QueryHandlerMock{}
 //
 //		// make and configure a mocked cqrs.QueryHandler
 //		mockedQueryHandler := &QueryHandlerMock{
-//			HandleFunc: func(contextMoqParam context.Context, query cqrs.Query) (cqrs.QueryResult, error) {
+//			HandleFunc: func(ctx context.Context, q cqrs.Query) (cqrs.QueryResult, error) {
 //				panic("mock out the Handle method")
 //			},
 //		}
@@ -230,29 +231,29 @@ var _ cqrs.QueryHandler = &QueryHandlerMock{}
 //	}
 type QueryHandlerMock struct {
 	// HandleFunc mocks the Handle method.
-	HandleFunc func(contextMoqParam context.Context, query cqrs.Query) (cqrs.QueryResult, error)
+	HandleFunc func(ctx context.Context, q cqrs.Query) (cqrs.QueryResult, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Handle holds details about calls to the Handle method.
 		Handle []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-			// Query is the query argument value.
-			Query cqrs.Query
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Q is the q argument value.
+			Q cqrs.Query
 		}
 	}
 	lockHandle sync.RWMutex
 }
 
 // Handle calls HandleFunc.
-func (mock *QueryHandlerMock) Handle(contextMoqParam context.Context, query cqrs.Query) (cqrs.QueryResult, error) {
+func (mock *QueryHandlerMock) Handle(ctx context.Context, q cqrs.Query) (cqrs.QueryResult, error) {
 	callInfo := struct {
-		ContextMoqParam context.Context
-		Query           cqrs.Query
+		Ctx context.Context
+		Q   cqrs.Query
 	}{
-		ContextMoqParam: contextMoqParam,
-		Query:           query,
+		Ctx: ctx,
+		Q:   q,
 	}
 	mock.lockHandle.Lock()
 	mock.calls.Handle = append(mock.calls.Handle, callInfo)
@@ -264,7 +265,7 @@ func (mock *QueryHandlerMock) Handle(contextMoqParam context.Context, query cqrs
 		)
 		return queryResultOut, errOut
 	}
-	return mock.HandleFunc(contextMoqParam, query)
+	return mock.HandleFunc(ctx, q)
 }
 
 // HandleCalls gets all the calls that were made to Handle.
@@ -272,15 +273,91 @@ func (mock *QueryHandlerMock) Handle(contextMoqParam context.Context, query cqrs
 //
 //	len(mockedQueryHandler.HandleCalls())
 func (mock *QueryHandlerMock) HandleCalls() []struct {
-	ContextMoqParam context.Context
-	Query           cqrs.Query
+	Ctx context.Context
+	Q   cqrs.Query
 } {
 	var calls []struct {
-		ContextMoqParam context.Context
-		Query           cqrs.Query
+		Ctx context.Context
+		Q   cqrs.Query
 	}
 	mock.lockHandle.RLock()
 	calls = mock.calls.Handle
 	mock.lockHandle.RUnlock()
+	return calls
+}
+
+// Ensure, that BusMock does implement cqrs.Bus.
+// If this is not the case, regenerate this file with moq.
+var _ cqrs.Bus = &BusMock{}
+
+// BusMock is a mock implementation of cqrs.Bus.
+//
+//	func TestSomethingThatUsesBus(t *testing.T) {
+//
+//		// make and configure a mocked cqrs.Bus
+//		mockedBus := &BusMock{
+//			DispatchFunc: func(contextMoqParam context.Context, dispatchable bus.Dispatchable) (interface{}, error) {
+//				panic("mock out the Dispatch method")
+//			},
+//		}
+//
+//		// use mockedBus in code that requires cqrs.Bus
+//		// and then make assertions.
+//
+//	}
+type BusMock struct {
+	// DispatchFunc mocks the Dispatch method.
+	DispatchFunc func(contextMoqParam context.Context, dispatchable bus.Dispatchable) (interface{}, error)
+
+	// calls tracks calls to the methods.
+	calls struct {
+		// Dispatch holds details about calls to the Dispatch method.
+		Dispatch []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// Dispatchable is the dispatchable argument value.
+			Dispatchable bus.Dispatchable
+		}
+	}
+	lockDispatch sync.RWMutex
+}
+
+// Dispatch calls DispatchFunc.
+func (mock *BusMock) Dispatch(contextMoqParam context.Context, dispatchable bus.Dispatchable) (interface{}, error) {
+	callInfo := struct {
+		ContextMoqParam context.Context
+		Dispatchable    bus.Dispatchable
+	}{
+		ContextMoqParam: contextMoqParam,
+		Dispatchable:    dispatchable,
+	}
+	mock.lockDispatch.Lock()
+	mock.calls.Dispatch = append(mock.calls.Dispatch, callInfo)
+	mock.lockDispatch.Unlock()
+	if mock.DispatchFunc == nil {
+		var (
+			ifaceValOut interface{}
+			errOut      error
+		)
+		return ifaceValOut, errOut
+	}
+	return mock.DispatchFunc(contextMoqParam, dispatchable)
+}
+
+// DispatchCalls gets all the calls that were made to Dispatch.
+// Check the length with:
+//
+//	len(mockedBus.DispatchCalls())
+func (mock *BusMock) DispatchCalls() []struct {
+	ContextMoqParam context.Context
+	Dispatchable    bus.Dispatchable
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		Dispatchable    bus.Dispatchable
+	}
+	mock.lockDispatch.RLock()
+	calls = mock.calls.Dispatch
+	mock.lockDispatch.RUnlock()
 	return calls
 }
