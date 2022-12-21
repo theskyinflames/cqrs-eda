@@ -4,11 +4,12 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/theskyinflames/cqrs-eda/pkg/events"
 )
 
 // Event is self-described
 type Event interface {
-	Name() string
+	events.Event
 }
 
 // AggregateBasic implements
