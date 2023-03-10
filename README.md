@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/theskyinflames/cqrs-eda)](https://goreportcard.com/report/github.com/theskyinflames/cqrs-eda)
+
 # CQRS - EDA
 This repo contains a set of tools to implement CQRS/EDA services. This tooling is composed of:
 
