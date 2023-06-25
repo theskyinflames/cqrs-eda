@@ -44,7 +44,7 @@ As CQRS architectures as EDA ones, use a bus:
 
 * CQRS uses a command/query bus to dispatch the commands and queries from the entry point, usually an HTTP or RCP API. It allows the decoupling of the infra layer from the application layer where command and query handlers live.
 
-* For EDA architectures, when event consumers live in the same bounded context (same service), they're usually dispatched to an Even bus, which is in charge of delegating them to the corresponding event handlers. Usually, these event handlers will map the event to a command and dispatch it to the command bus.
+* For EDA architectures, when event consumers live in the same bounded context (same service), they're usually dispatched to an Event bus, which is in charge of delegating them to the corresponding event handlers. Usually, these event handlers will map the event to a command and dispatch it to the command bus.
 
 You will find the Bus tooling in [pkg/bus](pkg/bus) directory.
 
