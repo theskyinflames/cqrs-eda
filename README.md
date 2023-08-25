@@ -1,7 +1,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/theskyinflames/cqrs-eda)](https://goreportcard.com/report/github.com/theskyinflames/cqrs-eda)
 
-# CQRS - EDA
-This repo contains a set of tools to implement CQRS/EDA services. This tooling is composed of:
+# CQRS - EDA - DDD
+This repo contains a set of tools to implement CQRS/EDA DDD oriented services. This tooling is composed of:
 
 * CQRS utils:
     * Command, command handler
@@ -58,7 +58,7 @@ I've implemented some examples to help you to understand how to use this tooling
 
 * [event_bus](examples/events_bus) Example of an event dispatched to a sequential event bus.
 
-* [concurrent_event_bus](examples/concurrent_event_bus) Example of two events dispatched to a concurrent event bus
+* [concurrent_event_bus](examples/concurrent_event_bus) Example of two events dispatched to a concurrent event bus.
 
 ## Do you think this is useful? back me up
 Thinking and building this tool has taken part of my time and effort. If you find it useful, and you think I deserve it, you can invite me a coffee :-)
