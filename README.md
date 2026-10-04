@@ -1,6 +1,14 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/theskyinflames/cqrs-eda)](https://goreportcard.com/report/github.com/theskyinflames/cqrs-eda)
 
 # CQRS - EDA - DDD
+
+> **A newer version of this library lives in
+> [theskyinflames/golang-cqrs-eda](https://github.com/theskyinflames/golang-cqrs-eda).**
+> It is a Claude Code plugin that copies a modernized version of this code into your Go
+> project (generic typed handlers, `slog`, unit-of-work middleware, no external
+> dependencies) and teaches Claude the CQRS / EDA / DDD conventions to use it. It is
+> MIT-licensed. This repository stays available as-is under GPL-3.0.
+
 This repo contains a set of tools to implement CQRS/EDA DDD oriented services. This tooling is composed of:
 
 * CQRS utils:
